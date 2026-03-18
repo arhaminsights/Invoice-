@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arham Insights - Admin Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.1"></script>
+    <style>
+        :root { --primary: #2c3e50; --gold: #b8860b; --bg: #f4f7f6; --accent: #008080; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        
+        /* Login Screen */
+        #login-screen { height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .login-box { background: white; padding: 35px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 300px; }
+        input { padding: 12px; border: 1.5px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; outline: none; margin-bottom: 15px; }
+        
+        /* Dashboard */
+        #admin-panel { display: none; max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 15px; margin-bottom: 20px; }
+        
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-blue { background: var(--primary); }
+        .btn-red { background: #e74c3c; padding: 8px 15px; }
+        
+        /* Table */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 600px; }
+        th { background: var(--primary); color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .view-link { color: var(--accent); font-weight: bold; text-decoration: none; border: 1px solid var(--accent); padding: 5px 10px; border-radius: 5px; }
+        .view-link:hover { background: var(--accent); color: white; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h2 style="color:var(--primary); margin-top:0;">Admin Login</h2>
+        <input type="password" id="adminPass" placeholder="Enter Password (1122)">
+        <button class="btn btn-blue" onclick="checkLogin()" style="width:100%">Login</button>
+    </div>
+</div>
+
+<div id="admin-panel">
+    <div class="header">
+        <h2 style="margin:0; color:var(--primary)">Arham Insights - Billing History</h2>
+        <button class="btn btn-red" onclick="location.reload()">Logout</button>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchIn" placeholder="Search by Invoice No (e.g. AI-101)" style="margin-bottom:0;">
+        <button class="btn btn-blue" onclick="searchData()">Search</button>
+        <button class="btn btn-blue" style="background:#95a5a6;" onclick="loadHistory()">Reset</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Inv No</th>
+                    <th>Customer Name</th>
+                    <th>Date</th>
+                    <th>Total Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const { Client, Databases, Storage, Query } = Appwrite;
+    const client = new Client()
+        .setEndpoint('https://sfo.cloud.appwrite.io/v1') 
+        .setProject('69ba672e000b0986202b'); //
+
+    const databases = new Databases(client);
+    const storage = new Storage(client);
+
+    const DB_ID = 'Arham_Billing'; //
+    const COLL_ID = 'Invoices';    //
+    const BUCKET_ID = '69ba6cc7003e785f4636'; //
+
+    function checkLogin() {
+        const pass = document.getElementById('adminPass').value;
+        if(pass === "1122") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            loadHistory();
+        } else {
+            alert("Galat Password!");
+        }
+    }
+
+    async function loadHistory() {
+        try {
+            const resp = await databases.listDocuments(DB_ID, COLL_ID);
+            renderTable(resp.documents);
+        } catch (e) {
+            alert("Data load nahi ho raha: " + e.message);
+        }
+    }
+
+    function renderTable(docs) {
+        const body = document.getElementById('historyBody');
+        body.innerHTML = '';
+        if(docs.length === 0) {
+            body.innerHTML = '<tr><td colspan="5" style="text-align:center;">No invoices found.</td></tr>';
+            return;
+        }
+        docs.forEach(d => {
+            const url = storage.getFileView(BUCKET_ID, d.photoId);
+            body.innerHTML += `
+                <tr>
+                    <td><b>${d.invoiceNo}</b></td>
+                    <td>${d.customerName}</td>
+                    <td>${d.date}</td>
+                    <td>₹${d.totalAmount}</td>
+                    <td><a href="${url}" target="_blank" class="view-link">View Photo</a></td>
+                </tr>`;
+        });
+    }
+
+    async function searchData() {
+        const q = document.getElementById('searchIn').value;
+        if(!q) return loadHistory();
+        try {
+            const resp = await databases.listDocuments(DB_ID, COLL_ID, [
+                Query.equal("invoiceNo", q)
+            ]);
+            renderTable(resp.documents);
+        } catch (e) {
+            alert("Search failed or not found.");
+        }
+    }
+</script>
+</body>
+</html>
