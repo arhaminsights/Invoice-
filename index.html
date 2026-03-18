@@ -3,143 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arham Insights - Invoice Maker</title>
+    <title>Arham Insights - Invoice Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #121212; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 15px; border: 1px solid #333; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #222; color: white; }
-        button { width: 95%; padding: 12px; background: #22c55e; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        canvas { border: 1px solid #fff; margin-top: 20px; max-width: 100%; border-radius: 5px; background: white; }
-        h2 { color: #22c55e; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; display: flex; flex-direction: column; gap: 30px; }
+        
+        /* Form Section */
+        .form-section { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .form-section h3 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-weight: bold; font-size: 14px; }
+        .form-group input, .form-group textarea { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-family: inherit; }
+        
+        button { padding: 10px 20px; background: #2c3e50; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #1a252f; }
+        .btn-download { background: #e74c3c; width: 100%; font-size: 16px; padding: 15px; margin-top: 20px; }
+        .btn-download:hover { background: #c0392b; }
+
+        /* Invoice Preview Section */
+        .invoice-box { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* Invoice Header */
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #2c3e50; padding-bottom: 20px; margin-bottom: 20px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-area img { height: 70px; }
+        .company-title h1 { margin: 0; font-size: 32px; color: #2c3e50; letter-spacing: 1px; }
+        .company-title h2 { margin: 0; font-size: 16px; color: #7f8c8d; letter-spacing: 3px; font-weight: normal; }
+        .invoice-details { text-align: right; }
+        .invoice-details p { margin: 5px 0; font-weight: bold; }
+
+        /* Billing Section */
+        .billing-info { margin-bottom: 30px; }
+        .billing-info h4 { margin: 0 0 10px 0; color: #2c3e50; font-size: 18px; text-transform: uppercase; }
+        .billing-info p { margin: 4px 0; font-size: 15px; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; color: #2c3e50; }
+        .text-right { text-align: right; }
+        
+        /* Footer */
+        .footer { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 3px solid #2c3e50; font-size: 14px; color: #555; }
+        .footer-left p, .footer-right p { margin: 5px 0; }
+        .signature-area { margin-top: 15px; text-align: right; }
+        .signature-text { font-family: 'Brush Script MT', 'Lucida Handwriting', cursive; font-size: 28px; color: #2c3e50; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Invoice Generator</h2>
-    <input type="text" id="name" placeholder="Customer Name" oninput="drawInvoice()">
-    <input type="text" id="phone" placeholder="Phone Number" oninput="drawInvoice()">
-    <input type="text" id="address" placeholder="Address" oninput="drawInvoice()">
-    <input type="text" id="date" value="18-03-2026" oninput="drawInvoice()">
-    
-    <canvas id="invoiceCanvas" width="800" height="1100"></canvas>
-    
-    <button onclick="downloadInvoice()">Download PDF Bill</button>
+    <div class="form-section">
+        <h3>Invoice Details Fill Karein</h3>
+        
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Invoice Number:</label>
+                <input type="text" id="invNumInput" placeholder="e.g. INV-001" oninput="updateInvoice()">
+            </div>
+            <div class="form-group">
+                <label>Date:</label>
+                <input type="date" id="invDateInput" oninput="updateInvoice()">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label>Bill To (Customer Name):</label>
+            <input type="text" id="custNameInput" placeholder="Customer ka naam" oninput="updateInvoice()">
+        </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Customer Number:</label>
+                <input type="text" id="custNumInput" placeholder="Phone Number" oninput="updateInvoice()">
+            </div>
+            <div class="form-group">
+                <label>Customer Address:</label>
+                <input type="text" id="custAddInput" placeholder="Address" oninput="updateInvoice()">
+            </div>
+        </div>
+
+        <h3 style="margin-top: 20px;">Products Add Karein</h3>
+        <div class="grid-2">
+            <div class="form-group"><label>Product Name</label><input type="text" id="pName"></div>
+            <div class="form-group"><label>Quantity</label><input type="number" id="pQty" value="1"></div>
+            <div class="form-group"><label>Price (₹)</label><input type="number" id="pPrice" value="0"></div>
+            <div class="form-group"><label>Discount (₹)</label><input type="number" id="pDisc" value="0"></div>
+        </div>
+        <button type="button" onclick="addProduct()">+ Add Product to Invoice</button>
+    </div>
+
+    <div class="invoice-box" id="invoice">
+        <div class="header">
+            <div class="logo-area">
+                <img src="https://i.ibb.co/hJSqvgDw/43899-removebg-preview.png" alt="Arham Insights Logo">
+                <div class="company-title">
+                    <h1>ARHAM INSIGHTS</h1>
+                    <h2>INVOICE</h2>
+                </div>
+            </div>
+            <div class="invoice-details">
+                <p>Invoice No: <span id="outInvNum">---</span></p>
+                <p>Date: <span id="outInvDate">---</span></p>
+            </div>
+        </div>
+
+        <div class="billing-info">
+            <h4>Invoice To:</h4>
+            <p><strong id="outCustName">Customer Name</strong></p>
+            <p id="outCustNum">Phone Number</p>
+            <p id="outCustAdd">Address</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Discount</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceTableBody">
+                </tbody>
+        </table>
+
+        <div class="footer">
+            <div class="footer-left">
+                <p><strong>Email ID:</strong> arhaminsightshelp@gmail.com</p>
+                <p><strong>Reference no:</strong> 3535246</p>
+                <p><strong>MSME no:</strong> UDYAM-RJ-26-0080974</p>
+            </div>
+            <div class="footer-right">
+                <p><strong>Contact Us:</strong> 8769531125, 8968146117</p>
+                <div class="signature-area">
+                    <div class="signature-text">Naman Jain</div>
+                    <p>Authorized Signature</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-download" onclick="downloadPDF()">Download Invoice as PDF</button>
 </div>
 
 <script>
-    const canvas = document.getElementById('invoiceCanvas');
-    const ctx = canvas.getContext('2d');
+    let productCount = 0;
 
-    // Default Values
-    function drawInvoice() {
-        const name = document.getElementById('name').value || "Sourabh";
-        const phone = document.getElementById('phone').value || "7363736372";
-        const address = document.getElementById('address').value || "Ragho Majra, Patiala";
-        const date = document.getElementById('date').value || "18-03-2026";
-
-        // 1. Clear Canvas & White Background
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // 2. Header - ARHAM INSIGHTS
-        ctx.fillStyle = "black";
-        ctx.font = "bold 45px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("ARHAM INSIGHTS", 400, 100);
-        
-        ctx.font = "20px Arial";
-        ctx.fillText("Official Payment Receipt", 400, 140);
-
-        // 3. Horizontal Lines
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(50, 170); ctx.lineTo(750, 170); ctx.stroke();
-
-        // 4. Details Section
-        ctx.textAlign = "left";
-        ctx.font = "bold 24px Arial";
-        ctx.fillText("Name:", 70, 230);
-        ctx.fillText("Phone:", 70, 270);
-        ctx.fillText("Address:", 70, 310);
-        ctx.fillText("Date:", 70, 350);
-
-        ctx.font = "24px Arial";
-        ctx.fillText(name, 220, 230);
-        ctx.fillText(phone, 220, 270);
-        ctx.fillText(address, 220, 310);
-        ctx.fillText(date, 220, 350);
-
-        // 5. Table Header
-        ctx.beginPath();
-        ctx.moveTo(50, 400); ctx.lineTo(750, 400); ctx.stroke();
-        ctx.font = "bold 22px Arial";
-        ctx.fillText("PARTICULARS", 70, 435);
-        ctx.textAlign = "right";
-        ctx.fillText("AMOUNT", 730, 435);
-        ctx.beginPath();
-        ctx.moveTo(50, 460); ctx.lineTo(750, 460); ctx.stroke();
-
-        // 6. Fees
-        ctx.textAlign = "left";
-        ctx.font = "22px Arial";
-        ctx.fillText("Network Access Fee", 70, 510);
-        ctx.fillText("Registration Fee", 70, 560);
-        ctx.textAlign = "right";
-        ctx.fillText("₹ 500.00", 730, 510);
-        ctx.fillText("₹ 1500.00", 730, 560);
-
-        // 7. Grand Total
-        ctx.beginPath();
-        ctx.moveTo(50, 610); ctx.lineTo(750, 610); ctx.stroke();
-        ctx.font = "bold 28px Arial";
-        ctx.textAlign = "left";
-        ctx.fillText("GRAND TOTAL", 70, 655);
-        ctx.textAlign = "right";
-        ctx.fillText("₹ 2000.00", 730, 655);
-        ctx.beginPath();
-        ctx.moveTo(50, 680); ctx.lineTo(750, 680); ctx.stroke();
-
-        // 8. Paid Stamp (Light Green)
-        ctx.save();
-        ctx.translate(400, 530);
-        ctx.rotate(-0.2);
-        ctx.strokeStyle = "rgba(34, 197, 94, 0.3)";
-        ctx.lineWidth = 5;
-        ctx.strokeRect(-80, -40, 160, 80);
-        ctx.fillStyle = "rgba(34, 197, 94, 0.3)";
-        ctx.font = "bold 40px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("PAID", 0, 15);
-        ctx.restore();
-
-        // 9. Footer Text
-        ctx.fillStyle = "gray";
-        ctx.font = "italic 18px Arial";
-        ctx.textAlign = "left";
-        ctx.fillText("* This is a computer generated invoice.", 70, 850);
-
-        // 10. Signature (Image Link from yours)
-        const signImg = new Image();
-        signImg.crossOrigin = "anonymous";
-        signImg.src = "https://i.ibb.co/HD3kK5Nm/IMG-20260318-100955.png";
-        signImg.onload = function() {
-            ctx.drawImage(signImg, 500, 800, 200, 100);
-            ctx.fillStyle = "black";
-            ctx.font = "bold 18px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText("Authorized Signatory", 600, 920);
-        };
+    // Upadate Header and Customer info in real-time
+    function updateInvoice() {
+        document.getElementById('outInvNum').innerText = document.getElementById('invNumInput').value || '---';
+        document.getElementById('outInvDate').innerText = document.getElementById('invDateInput').value || '---';
+        document.getElementById('outCustName').innerText = document.getElementById('custNameInput').value || 'Customer Name';
+        document.getElementById('outCustNum').innerText = document.getElementById('custNumInput').value || 'Phone Number';
+        document.getElementById('outCustAdd').innerText = document.getElementById('custAddInput').value || 'Address';
     }
 
-    // Initial Draw
-    window.onload = drawInvoice;
+    // Add product to the table
+    function addProduct() {
+        const name = document.getElementById('pName').value;
+        const qty = parseFloat(document.getElementById('pQty').value) || 0;
+        const price = parseFloat(document.getElementById('pPrice').value) || 0;
+        const disc = parseFloat(document.getElementById('pDisc').value) || 0;
+        
+        if(name.trim() === '') {
+            alert('Please enter a product name!');
+            return;
+        }
 
-    function downloadInvoice() {
-        const link = document.createElement('a');
-        link.download = 'Arham_Insights_Bill.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const total = (qty * price) - disc;
+        productCount++;
+
+        const tbody = document.getElementById('invoiceTableBody');
+        const row = `<tr>
+            <td>${productCount}</td>
+            <td>${name}</td>
+            <td>${qty}</td>
+            <td>₹${price.toFixed(2)}</td>
+            <td>₹${disc.toFixed(2)}</td>
+            <td class="text-right"><strong>₹${total.toFixed(2)}</strong></td>
+        </tr>`;
+        
+        tbody.innerHTML += row;
+
+        // Clear inputs after adding
+        document.getElementById('pName').value = '';
+        document.getElementById('pQty').value = '1';
+        document.getElementById('pPrice').value = '0';
+        document.getElementById('pDisc').value = '0';
+    }
+
+    // Download PDF Function
+    function downloadPDF() {
+        const element = document.getElementById('invoice');
+        const opt = {
+            margin:       0.5,
+            filename:     'Arham_Insights_Invoice.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
     }
 </script>
 
