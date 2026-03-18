@@ -4,86 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arham Insights - Professional Invoice</title>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.1/html-to-image.min.js"></script>
     <style>
+        /* Aapka Pura CSS Wahi Hai */
         :root { --primary: #2c3e50; --gold: #b8860b; --bg: #f4f7f6; --accent: #008080; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-        
-        /* New Navigation Buttons at the Top */
-        .top-navigation {
-            max-width: 850px;
-            margin: 5px auto 15px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .nav-link-btn {
-            padding: 12px;
-            text-align: center;
-            text-decoration: none;
-            color: white;
-            font-weight: 800;
-            border-radius: 8px;
-            font-size: 14px;
-            text-transform: uppercase;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
+        .top-navigation { max-width: 850px; margin: 5px auto 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .nav-link-btn { padding: 12px; text-align: center; text-decoration: none; color: white; font-weight: 800; border-radius: 8px; font-size: 14px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s; }
         .btn-admin-nav { background: var(--accent); }
         .btn-pdf-nav { background: var(--primary); }
-        .nav-link-btn:hover { transform: translateY(-2px); opacity: 0.9; }
-
-        /* Professional Admin Panel */
-        .admin-panel { 
-            background: white; max-width: 850px; margin: 15px auto; padding: 25px; 
-            border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border-top: 5px solid var(--primary);
-        }
+        .admin-panel { background: white; max-width: 850px; margin: 15px auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 5px solid var(--primary); }
         .admin-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .input-box { display: flex; flex-direction: column; gap: 5px; }
         label { font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; }
         input { padding: 12px; border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 14px; transition: 0.3s; }
-        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 5px rgba(44,62,80,0.1); }
-        
         .btn { padding: 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .btn-add { background: var(--primary); width: 100%; margin-top: 10px; }
         .btn-photo { background: #27ae60; width: 100%; font-size: 18px; margin-top: 20px; box-shadow: 0 4px 10px rgba(39,174,96,0.3); }
-
-        /* INVOICE SHEET STYLING */
-        #invoice-sheet { 
-            width: 800px; min-height: 1100px; 
-            background: linear-gradient(145deg, rgba(184, 134, 11, 0.12) 0%, #ffffff 40%, #ffffff 60%, rgba(0, 128, 128, 0.12) 100%);
-            margin: 0 auto; padding: 50px; box-sizing: border-box; display: flex; flex-direction: column;
-            position: relative; border: 1px solid #ddd;
-        }
-
+        #invoice-sheet { width: 800px; min-height: 1100px; background: white; margin: 0 auto; padding: 50px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; border: 1px solid #ddd; }
         .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
         .brand { display: flex; align-items: center; gap: 15px; }
         .brand img { height: 75px; }
-        
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: rgba(255,255,255,0.4); }
-        th { background: rgba(44, 62, 80, 0.9); color: white; border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
-        td { border: 1px solid #ccc; padding: 12px; font-size: 14px; color: #000; font-weight: 500; }
-
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: var(--primary); color: white; border: 1px solid #ddd; padding: 12px; text-align: left; }
+        td { border: 1px solid #ccc; padding: 12px; }
         .total-box { margin-left: auto; background: var(--primary); color: white; padding: 15px 30px; border-radius: 4px; font-size: 24px; font-weight: bold; }
-
-        .bottom-row { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 40px; }
-        .thanks h2 { margin: 0; font-size: 28px; color: var(--gold); font-style: italic; text-shadow: 1px 1px 1px rgba(0,0,0,0.05); }
-        
-        .sig-section { text-align: right; min-width: 160px; display: flex; gap: 25px; }
+        .bottom-row { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
+        .sig-section { display: flex; gap: 25px; }
         .sig-box { text-align: center; }
-        .sig-name { font-family: cursive; font-size: 20px; margin: 0; color: #000; }
-        .sig-line { border-top: 2.5px solid #000; margin-top: 2px; padding-top: 2px; font-weight: 900; font-size: 10px; text-transform: uppercase; color: #000; }
-        .sig-title { font-size: 9px; color: #000; display: block; font-weight: 800; }
-
-        .footer-info { 
-            border-top: 3px solid #000; margin-top: 25px; padding-top: 15px; 
-            font-size: 13px; color: #000; display: grid; grid-template-columns: 1.2fr 1.2fr 1fr; 
-            font-weight: 900; line-height: 1.8;
-        }
-        .contact-col { display: flex; flex-direction: column; border-left: 2px solid #000; padding-left: 15px; }
+        .sig-name { font-family: cursive; font-size: 20px; margin: 0; }
+        .sig-line { border-top: 2.5px solid #000; margin-top: 2px; }
+        .footer-info { border-top: 3px solid #000; margin-top: 25px; padding-top: 15px; font-size: 13px; display: grid; grid-template-columns: 1.2fr 1.2fr 1fr; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -109,7 +62,7 @@
         <div class="input-box"><label>Discount (₹)</label><input type="number" id="pDisc" placeholder="0"></div>
     </div>
     <button class="btn btn-add" onclick="addItem()">+ Add Product</button>
-    <button class="btn btn-photo" onclick="downloadImage()">📸 Download Royal Invoice Photo</button>
+    <button class="btn btn-photo" id="saveBtn" onclick="downloadImage()">📸 Download & Save Online</button>
 </div>
 
 <div id="invoice-sheet">
@@ -156,24 +109,36 @@
             <p style="font-weight:900; font-size:18px; margin:5px 0; color: #000;">Khamma Ghani 🙏</p>
         </div>
         <div class="sig-section">
-            <div class="sig-box"><p class="sig-name">Akash</p><div class="sig-line">Akash</div><span class="sig-title">CEO</span></div>
-            <div class="sig-box"><p class="sig-name">Anju</p><div class="sig-line">Anju</div><span class="sig-title">MD</span></div>
-            <div class="sig-box"><p class="sig-name">Naman Jain</p><div class="sig-line">Naman Jain</div><span class="sig-title">Owner</span></div>
+            <div class="sig-box"><p class="sig-name">Akash</p><div class="sig-line">CEO</div></div>
+            <div class="sig-box"><p class="sig-name">Anju</p><div class="sig-line">MD</div></div>
+            <div class="sig-box"><p class="sig-name">Naman Jain</p><div class="sig-line">Owner</div></div>
         </div>
     </div>
 
     <div class="footer-info">
         <div>Email: arhaminsightshelp@gmail.com</div>
         <div>MSME: UDYAM-RJ-26-0080974</div>
-        <div class="contact-col">
-            <span>Contact 1: 8769531125</span>
-            <span>Contact 2: 8968146117</span>
+        <div style="border-left: 2px solid #000; padding-left: 15px;">
+            Contact 1: 8769531125<br>
+            Contact 2: 8968146117
         </div>
     </div>
 </div>
 
 <script>
+    // --- APPWRITE CONFIG ---
+    const { Client, Databases, Storage, ID } = Appwrite;
+    const client = new Client().setEndpoint('https://sfo.cloud.appwrite.io/v1').setProject('69ba672e000b0986202b');
+    const databases = new Databases(client);
+    const storage = new Storage(client);
+
+    const DB_ID = 'Arham_Billing'; 
+    const COLL_ID = 'Invoices';    
+    const BUCKET_ID = '69ba6cc7003e785f4636';
+
     let list = [];
+    let currentGT = 0;
+
     function sync() {
         document.getElementById('outNo').innerText = document.getElementById('inNo').value || '---';
         document.getElementById('outDate').innerText = document.getElementById('inDate').value || '---';
@@ -181,6 +146,7 @@
         document.getElementById('outPhone').innerText = document.getElementById('inPhone').value || '---';
         document.getElementById('outAddr').innerText = document.getElementById('inAddr').value || '---';
     }
+
     function addItem() {
         const n = document.getElementById('pName').value, q = parseFloat(document.getElementById('pQty').value) || 1, 
               p = parseFloat(document.getElementById('pPrice').value) || 0, d = parseFloat(document.getElementById('pDisc').value) || 0;
@@ -190,16 +156,55 @@
         document.getElementById('pName').value = ''; document.getElementById('pQty').value = ''; 
         document.getElementById('pPrice').value = ''; document.getElementById('pDisc').value = '';
     }
+
     function render() {
-        const tb = document.getElementById('tableBody'); tb.innerHTML = ''; let gt = 0;
-        list.forEach((it, i) => { gt += it.t; tb.innerHTML += `<tr><td>${i+1}</td><td><strong>${it.n}</strong></td><td>${it.q}</td><td>₹${it.p}</td><td style="color:#d32f2f">-₹${it.d}</td><td style="text-align:right; font-weight:900">₹${it.t.toFixed(2)}</td></tr>`; });
-        document.getElementById('gTotal').innerText = gt.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        const tb = document.getElementById('tableBody'); tb.innerHTML = ''; currentGT = 0;
+        list.forEach((it, i) => { currentGT += it.t; tb.innerHTML += `<tr><td>${i+1}</td><td><strong>${it.n}</strong></td><td>${it.q}</td><td>₹${it.p}</td><td style="color:#d32f2f">-₹${it.d}</td><td style="text-align:right; font-weight:900">₹${it.t.toFixed(2)}</td></tr>`; });
+        document.getElementById('gTotal').innerText = currentGT.toLocaleString('en-IN', {minimumFractionDigits: 2});
     }
-    function downloadImage() {
+
+    async function downloadImage() {
+        const invNo = document.getElementById('inNo').value;
+        if(!invNo) return alert("Invoice No zaroori hai!");
+        
+        const btn = document.getElementById('saveBtn');
+        btn.innerText = "Saving Online... ⏳";
+        btn.disabled = true;
+
         const node = document.getElementById('invoice-sheet');
-        htmlToImage.toPng(node, { quality: 1, backgroundColor: '#ffffff', pixelRatio: 2.5 })
-            .then(dataUrl => { const link = document.createElement('a'); link.download = 'Arham_Invoice_Royal.png'; link.href = dataUrl; link.click(); })
-            .catch(err => alert('Error: ' + err));
+        
+        try {
+            // 1. Image Generate Karo
+            const dataUrl = await htmlToImage.toPng(node, { quality: 1, backgroundColor: '#ffffff', pixelRatio: 2 });
+            
+            // 2. Download Karo (Aapka Purana Feature)
+            const link = document.createElement('a');
+            link.download = `Arham_${invNo}.png`;
+            link.href = dataUrl;
+            link.click();
+
+            // 3. Appwrite par Upload Karo
+            const blob = await (await fetch(dataUrl)).blob();
+            const file = new File([blob], `${invNo}.png`, { type: "image/png" });
+            const uploadedFile = await storage.createFile(BUCKET_ID, ID.unique(), file);
+
+            // 4. Database mein entry karo
+            await databases.createDocument(DB_ID, COLL_ID, ID.unique(), {
+                invoiceNo: invNo,
+                customerName: document.getElementById('inName').value || "Unknown",
+                date: document.getElementById('inDate').value || "---",
+                totalAmount: currentGT,
+                photoId: uploadedFile.$id
+            });
+
+            alert("✅ Photo Saved & Cloud Upload Done!");
+        } catch (err) {
+            console.error(err);
+            alert("Error: " + err.message);
+        } finally {
+            btn.innerText = "📸 Download & Save Online";
+            btn.disabled = false;
+        }
     }
 </script>
 </body>
