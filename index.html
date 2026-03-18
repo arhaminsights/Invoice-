@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arham Insights - Photo Invoice</title>
+    <title>Arham Insights - Professional Invoice</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.1/html-to-image.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --gold: #b8860b; --bg: #f4f7f6; }
@@ -25,144 +25,127 @@
         
         .btn { padding: 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .btn-add { background: var(--primary); width: 100%; margin-top: 10px; }
-        .btn-add:hover { background: #34495e; }
         .btn-photo { background: #27ae60; width: 100%; font-size: 18px; margin-top: 20px; box-shadow: 0 4px 10px rgba(39,174,96,0.3); }
 
-        /* INVOICE SHEET STYLING */
-        .preview-box { width: 100%; overflow-x: auto; padding: 20px 0; }
+        /* INVOICE SHEET STYLING - More Visible Gradient */
         #invoice-sheet { 
-            width: 800px; min-height: 1100px; background: white; margin: 0 auto; 
-            padding: 50px; box-sizing: border-box; display: flex; flex-direction: column;
+            width: 800px; min-height: 1100px; 
+            background: linear-gradient(145deg, rgba(184, 134, 11, 0.12) 0%, #ffffff 40%, #ffffff 60%, rgba(0, 128, 128, 0.12) 100%);
+            margin: 0 auto; padding: 50px; box-sizing: border-box; display: flex; flex-direction: column;
             position: relative; border: 1px solid #ddd;
         }
 
         .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
         .brand { display: flex; align-items: center; gap: 15px; }
-        .brand img { height: 70px; }
+        .brand img { height: 75px; }
         
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
-        td { border: 1px solid #ddd; padding: 12px; font-size: 14px; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: rgba(255,255,255,0.4); }
+        th { background: rgba(44, 62, 80, 0.9); color: white; border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { border: 1px solid #ccc; padding: 12px; font-size: 14px; color: #000; font-weight: 500; }
 
         .total-box { margin-left: auto; background: var(--primary); color: white; padding: 15px 30px; border-radius: 4px; font-size: 24px; font-weight: bold; }
 
         .bottom-row { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 40px; }
-        .thanks h2 { margin: 0; font-size: 26px; color: var(--gold); font-style: italic; }
+        .thanks h2 { margin: 0; font-size: 28px; color: var(--gold); font-style: italic; text-shadow: 1px 1px 1px rgba(0,0,0,0.05); }
         
         .sig-section { text-align: right; min-width: 160px; display: flex; gap: 25px; }
         .sig-box { text-align: center; }
-        .sig-name { font-family: cursive; font-size: 18px; margin: 0; color: #000; }
-        .sig-line { border-top: 1.5px solid #333; margin-top: 2px; padding-top: 2px; font-weight: bold; font-size: 10px; text-transform: uppercase; }
-        .sig-title { font-size: 9px; color: #777; display: block; }
+        .sig-name { font-family: cursive; font-size: 20px; margin: 0; color: #000; }
+        .sig-line { border-top: 2.5px solid #000; margin-top: 2px; padding-top: 2px; font-weight: 900; font-size: 10px; text-transform: uppercase; color: #000; }
+        .sig-title { font-size: 9px; color: #000; display: block; font-weight: 800; }
 
-        .footer-info { border-top: 1px solid #eee; margin-top: 25px; padding-top: 15px; font-size: 11px; color: #777; display: flex; justify-content: space-between; }
+        /* Dark Footer with Vertical Numbers */
+        .footer-info { 
+            border-top: 3px solid #000; margin-top: 25px; padding-top: 15px; 
+            font-size: 13px; color: #000; display: grid; grid-template-columns: 1.2fr 1.2fr 1fr; 
+            font-weight: 900; line-height: 1.8;
+        }
+        .contact-col { display: flex; flex-direction: column; border-left: 2px solid #000; padding-left: 15px; }
     </style>
 </head>
 <body>
 
 <div class="admin-panel">
     <div class="admin-title">Arham Insights - Billing Dashboard</div>
-    
     <div class="grid">
         <div class="input-box"><label>Invoice No</label><input type="text" id="inNo" placeholder="AI-101" oninput="sync()"></div>
         <div class="input-box"><label>Date</label><input type="date" id="inDate" oninput="sync()"></div>
         <div class="input-box"><label>Customer Name</label><input type="text" id="inName" placeholder="Enter Name" oninput="sync()"></div>
         <div class="input-box"><label>Mobile No</label><input type="text" id="inPhone" placeholder="9999999999" oninput="sync()"></div>
     </div>
-    
     <div class="input-box"><label>Address</label><input type="text" id="inAddr" placeholder="Full Address..." oninput="sync()" style="width:100%"></div>
-    
     <div class="grid" style="margin-top:20px; background: #fcfcfc; padding: 15px; border-radius: 8px; border: 1px dashed #ccc;">
         <div class="input-box"><label>Product Name</label><input type="text" id="pName" placeholder="Item Name"></div>
         <div class="input-box"><label>Qty</label><input type="number" id="pQty" placeholder="1"></div>
         <div class="input-box"><label>Price (₹)</label><input type="number" id="pPrice" placeholder="0"></div>
         <div class="input-box"><label>Discount (₹)</label><input type="number" id="pDisc" placeholder="0"></div>
     </div>
-    
-    <button class="btn btn-add" onclick="addItem()">+ Add Product to Invoice</button>
-    <button class="btn btn-photo" onclick="downloadImage()">📸 Download HD Invoice Photo</button>
+    <button class="btn btn-add" onclick="addItem()">+ Add Product</button>
+    <button class="btn btn-photo" onclick="downloadImage()">📸 Download Royal Invoice Photo</button>
 </div>
 
-<div class="preview-box">
-    <div id="invoice-sheet">
-        <div class="header">
-            <div class="brand">
-                <img src="https://i.ibb.co/hJSqvgDw/43899-removebg-preview.png" crossorigin="anonymous">
-                <div>
-                    <h1 style="margin:0; font-size:32px; color:var(--primary)">ARHAM INSIGHTS</h1>
-                    <p style="margin:0; letter-spacing:4px; font-weight:bold; color:var(--gold); font-size:12px">OFFICIAL INVOICE</p>
-                </div>
-            </div>
-            <div style="text-align:right; font-size:14px">
-                <p><strong>Invoice No:</strong> <span id="outNo">---</span></p>
-                <p><strong>Date:</strong> <span id="outDate">---</span></p>
-            </div>
-        </div>
-
-        <div style="margin-bottom:25px; display: grid; grid-template-columns: 1fr 1fr;">
+<div id="invoice-sheet">
+    <div class="header">
+        <div class="brand">
+            <img src="https://i.ibb.co/hJSqvgDw/43899-removebg-preview.png" crossorigin="anonymous">
             <div>
-                <h4 style="border-bottom:2px solid var(--gold); display:inline-block; margin-bottom:8px">BILL TO:</h4>
-                <p><strong id="outName" style="font-size:20px; color:var(--primary)">Customer Name</strong></p>
-                <p style="margin:4px 0">Phone: <span id="outPhone">---</span></p>
-                <p style="margin:4px 0; font-size:13px; color:#555">Address: <span id="outAddr">---</span></p>
-            </div>
-            <div style="text-align: right;">
-                <h4 style="margin-bottom:8px">PAYMENT STATUS</h4>
-                <p style="color:#27ae60; font-weight:bold; font-size:18px">PAID</p>
+                <h1 style="margin:0; font-size:32px; color:var(--primary)">ARHAM INSIGHTS</h1>
+                <p style="margin:0; letter-spacing:4px; font-weight:bold; color:var(--gold); font-size:12px">OFFICIAL INVOICE</p>
             </div>
         </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th width="40">S.N</th>
-                    <th>Description</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Discount</th>
-                    <th style="text-align:right">Total</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-
-        <div class="total-box">Grand Total: ₹<span id="gTotal">0.00</span></div>
-
-        <div class="bottom-row">
-            <div class="thanks">
-                <h2>Thank You!</h2>
-                <p style="font-weight:bold; font-size:18px; margin:5px 0">Khamma Ghani 🙏</p>
-            </div>
-            <div class="sig-section">
-                <div class="sig-box">
-                    <p class="sig-name">Akash</p>
-                    <div class="sig-line">Akash</div>
-                    <span class="sig-title">CEO</span>
-                </div>
-                <div class="sig-box">
-                    <p class="sig-name">Anju</p>
-                    <div class="sig-line">Anju</div>
-                    <span class="sig-title">MD</span>
-                </div>
-                <div class="sig-box">
-                    <p class="sig-name">Naman Jain</p>
-                    <div class="sig-line">Naman Jain</div>
-                    <span class="sig-title">Owner</span>
-                </div>
-            </div>
+        <div style="text-align:right; font-size:14px; color: #000; font-weight: 700;">
+            <p style="margin:2px 0"><strong>No:</strong> <span id="outNo">---</span></p>
+            <p style="margin:2px 0"><strong>Date:</strong> <span id="outDate">---</span></p>
         </div>
+    </div>
 
-        <div class="footer-info">
-            <span>Email: arhaminsightshelp@gmail.com</span>
-            <span>MSME: UDYAM-RJ-26-0080974</span>
-            <span>Contact: 8769531125</span>
+    <div style="margin-bottom:25px;">
+        <h4 style="border-bottom:2.5px solid var(--gold); display:inline-block; margin-bottom:8px; color: #000; font-weight: 900;">BILL TO:</h4>
+        <p><strong id="outName" style="font-size:22px; color:var(--primary)">Customer Name</strong></p>
+        <p style="margin:4px 0; color: #000; font-weight: 700;">Phone: <span id="outPhone">---</span></p>
+        <p style="margin:4px 0; font-size:13px; color:#000; font-weight: 600;">Address: <span id="outAddr">---</span></p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="40">S.N</th>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Discount</th>
+                <th style="text-align:right">Total</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <div class="total-box">Grand Total: ₹<span id="gTotal">0.00</span></div>
+
+    <div class="bottom-row">
+        <div class="thanks">
+            <h2>Thank You!</h2>
+            <p style="font-weight:900; font-size:18px; margin:5px 0; color: #000;">Khamma Ghani 🙏</p>
+        </div>
+        <div class="sig-section">
+            <div class="sig-box"><p class="sig-name">Akash</p><div class="sig-line">Akash</div><span class="sig-title">CEO</span></div>
+            <div class="sig-box"><p class="sig-name">Anju</p><div class="sig-line">Anju</div><span class="sig-title">MD</span></div>
+            <div class="sig-box"><p class="sig-name">Naman Jain</p><div class="sig-line">Naman Jain</div><span class="sig-title">Owner</span></div>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        <div>Email: arhaminsightshelp@gmail.com</div>
+        <div>MSME: UDYAM-RJ-26-0080974</div>
+        <div class="contact-col">
+            <span>Contact 1: 8769531125</span>
+            <span>Contact 2: 8968146117</span>
         </div>
     </div>
 </div>
 
 <script>
     let list = [];
-    
     function sync() {
         document.getElementById('outNo').innerText = document.getElementById('inNo').value || '---';
         document.getElementById('outDate').innerText = document.getElementById('inDate').value || '---';
@@ -170,60 +153,25 @@
         document.getElementById('outPhone').innerText = document.getElementById('inPhone').value || '---';
         document.getElementById('outAddr').innerText = document.getElementById('inAddr').value || '---';
     }
-
     function addItem() {
-        const name = document.getElementById('pName').value;
-        const qty = parseFloat(document.getElementById('pQty').value) || 1;
-        const price = parseFloat(document.getElementById('pPrice').value) || 0;
-        const disc = parseFloat(document.getElementById('pDisc').value) || 0;
-
-        if(!name || price <= 0) return alert("Pehle item ki sahi detail bharo!");
-
-        const rowTotal = (qty * price) - disc;
-        list.push({name, qty, price, disc, total: rowTotal});
-        
+        const n = document.getElementById('pName').value, q = parseFloat(document.getElementById('pQty').value) || 1, 
+              p = parseFloat(document.getElementById('pPrice').value) || 0, d = parseFloat(document.getElementById('pDisc').value) || 0;
+        if(!n || p <= 0) return alert("Sahi detail bharo!");
+        list.push({n, q, p, d, t: (q*p)-d});
         render();
-        
-        // Clear item inputs
-        document.getElementById('pName').value = '';
-        document.getElementById('pQty').value = '';
-        document.getElementById('pPrice').value = '';
-        document.getElementById('pDisc').value = '';
+        document.getElementById('pName').value = ''; document.getElementById('pQty').value = ''; 
+        document.getElementById('pPrice').value = ''; document.getElementById('pDisc').value = '';
     }
-
     function render() {
-        const tb = document.getElementById('tableBody');
-        tb.innerHTML = ''; let gt = 0;
-        list.forEach((it, i) => {
-            gt += it.total;
-            tb.innerHTML += `
-                <tr>
-                    <td>${i+1}</td>
-                    <td><strong>${it.name}</strong></td>
-                    <td>${it.qty}</td>
-                    <td>₹${it.price}</td>
-                    <td style="color: #e74c3c">-₹${it.disc}</td>
-                    <td style="text-align:right; font-weight:bold">₹${it.total.toFixed(2)}</td>
-                </tr>`;
-        });
+        const tb = document.getElementById('tableBody'); tb.innerHTML = ''; let gt = 0;
+        list.forEach((it, i) => { gt += it.t; tb.innerHTML += `<tr><td>${i+1}</td><td><strong>${it.n}</strong></td><td>${it.q}</td><td>₹${it.p}</td><td style="color:#d32f2f">-₹${it.d}</td><td style="text-align:right; font-weight:900">₹${it.t.toFixed(2)}</td></tr>`; });
         document.getElementById('gTotal').innerText = gt.toLocaleString('en-IN', {minimumFractionDigits: 2});
     }
-
     function downloadImage() {
         const node = document.getElementById('invoice-sheet');
-        const invNo = document.getElementById('inNo').value || 'New';
-        
-        // High quality pixelRatio 2 for clear image
-        htmlToImage.toPng(node, { quality: 1, backgroundColor: '#ffffff', pixelRatio: 2 })
-            .then(function (dataUrl) {
-                const link = document.createElement('a');
-                link.download = 'Arham_Invoice_' + invNo + '.png';
-                link.href = dataUrl;
-                link.click();
-            })
-            .catch(function (error) {
-                alert('Photo banane mein error: ' + error);
-            });
+        htmlToImage.toPng(node, { quality: 1, backgroundColor: '#ffffff', pixelRatio: 2.5 })
+            .then(dataUrl => { const link = document.createElement('a'); link.download = 'Arham_Invoice_Royal.png'; link.href = dataUrl; link.click(); })
+            .catch(err => alert('Error: ' + err));
     }
 </script>
 </body>
