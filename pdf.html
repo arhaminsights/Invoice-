@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arham Insights - PDF Maker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { 
+            --gradient: linear-gradient(135deg, #004e92, #000428, #00b09b); 
+            --gold: #d4af37; 
+            --bg: #f4f7f6;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        /* Navigation */
+        .nav-link-btn { 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 12px; 
+            text-align: center; 
+            text-decoration: none; 
+            color: white; 
+            background: #004e92; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Main Container */
+        .pdf-container { 
+            background: white; 
+            width: 100%; 
+            max-width: 500px; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            text-align: center;
+            border-top: 6px solid #004e92;
+        }
+
+        h2 { color: #004e92; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        p { color: #666; font-size: 14px; margin-bottom: 25px; }
+
+        /* Custom File Upload */
+        .upload-box {
+            border: 2px dashed #00b09b;
+            padding: 30px;
+            border-radius: 15px;
+            background: #f9fdfc;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+        .upload-box:hover { background: #e6f7f5; border-color: #004e92; }
+        .upload-box i { font-size: 40px; color: #00b09b; display: block; margin-bottom: 10px; }
+        
+        input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Preview Image */
+        #preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            margin-top: 20px;
+            border-radius: 10px;
+            display: none;
+            border: 1px solid #ddd;
+        }
+
+        /* Action Button */
+        .btn-make {
+            width: 100%;
+            padding: 15px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 25px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 176, 155, 0.3);
+            transition: 0.3s;
+            display: none; /* Pehle hide rahega */
+        }
+        .btn-make:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 176, 155, 0.4); }
+        .btn-make:disabled { background: #ccc; cursor: not-allowed; }
+
+        .footer-text { margin-top: 20px; font-size: 12px; color: #999; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="nav-link-btn">⬅️ BACK TO BILLING DASHBOARD</a>
+
+    <div class="pdf-container">
+        <h2>Invoice PDF Maker</h2>
+        <p>Upload your Arham Insights Invoice Photo</p>
+
+        <div class="upload-box" id="drop-area">
+            <span style="font-size: 40px;">📸</span>
+            <div id="file-label" style="font-weight: bold; color: #333;">Click or Drag Invoice Image</div>
+            <input type="file" id="imageInput" accept="image/*">
+        </div>
+
+        <img id="preview" alt="Invoice Preview">
+
+        <button class="btn-make" id="makeBtn" onclick="generatePDF()">📄 MAKE & DOWNLOAD PDF</button>
+
+        <div class="footer-text">Powered by Arham Insights Digital Portal</div>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+        const makeBtn = document.getElementById('makeBtn');
+        const fileLabel = document.getElementById('file-label');
+
+        // Photo upload hone par preview dikhana
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    makeBtn.style.display = 'block';
+                    fileLabel.innerText = "File: " + file.name;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const btn = document.getElementById('makeBtn');
+            
+            if (!preview.src) return alert("Pehle photo upload karein!");
+
+            btn.innerText = "Converting to PDF... ⏳";
+            btn.disabled = true;
+
+            try {
+                // Image load hone ka wait karte hain
+                const img = new Image();
+                img.src = preview.src;
+
+                img.onload = function() {
+                    // A4 size (Portrait)
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+
+                    // Image ki width/height ratio nikalte hain taaki khichi hui na lage
+                    const imgRatio = img.height / img.width;
+                    const pdfImgWidth = pageWidth - 20; // Side margins
+                    const pdfImgHeight = pdfImgWidth * imgRatio;
+
+                    // PDF mein image add karo (Center mein)
+                    pdf.addImage(img, 'PNG', 10, 10, pdfImgWidth, pdfImgHeight);
+
+                    // Final Download
+                    pdf.save("arham insights invoice.pdf");
+                    
+                    alert("✅ PDF Successfully Downloaded!");
+                    btn.innerText = "📄 MAKE & DOWNLOAD PDF";
+                    btn.disabled = false;
+                };
+            } catch (error) {
+                alert("Error: " + error.message);
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
