@@ -3,35 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arham Insights - Smart Invoice</title>
+    <title>Arham Insights - Multi-Sign Invoice</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --accent: #e74c3c; --success: #27ae60; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 10px; }
         
-        /* Loading Overlay */
         #loader {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); color: white; z-index: 9999;
-            flex-direction: column; align-items: center; justify-content: center; font-size: 20px;
+            background: rgba(0,0,0,0.8); color: white; z-index: 9999;
+            flex-direction: column; align-items: center; justify-content: center;
         }
         .spinner { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .form-box { background: white; max-width: 800px; margin: 10px auto; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px; }
-        label { font-size: 12px; font-weight: bold; color: #666; }
-        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-box { background: white; max-width: 850px; margin: 10px auto; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 10px; }
+        label { font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
-        .btn { padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; margin-top: 10px; }
+        .btn { padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; margin-top: 10px; transition: 0.2s; }
         .btn-add { background: var(--primary); width: 100%; }
         .btn-pdf { background: var(--accent); flex: 1; }
         .btn-share { background: var(--success); flex: 1; }
+        .btn:active { transform: scale(0.98); }
 
-        .preview-wrap { width: 100%; overflow-x: auto; margin-top: 20px; }
+        .preview-wrap { width: 100%; overflow-x: auto; margin-top: 20px; padding-bottom: 40px; }
         #invoice-card { 
             width: 794px; min-height: 1123px; background: white; margin: 0 auto; 
-            padding: 50px; box-sizing: border-box; display: flex; flex-direction: column;
+            padding: 40px; box-sizing: border-box; display: flex; flex-direction: column;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
 
         .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
@@ -39,41 +40,51 @@
         .logo-area img { height: 75px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 10px; font-size: 14px; }
+        th { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 14px; }
+        td { border: 1px solid #ddd; padding: 10px; font-size: 13px; }
 
-        .total-box { margin-left: auto; margin-top: 20px; background: var(--primary); color: white; padding: 15px 25px; border-radius: 5px; font-size: 22px; width: fit-content; }
+        .total-box { margin-left: auto; margin-top: 20px; background: var(--primary); color: white; padding: 12px 20px; border-radius: 4px; font-size: 20px; width: fit-content; }
 
-        .footer { margin-top: auto; padding-top: 20px; border-top: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: flex-end; }
-        .f-left p { margin: 3px 0; font-size: 13px; }
-        .sig { font-family: cursive; font-size: 30px; margin: 0; color: var(--primary); }
+        /* Multi-Signature Section */
+        .signatures-container { 
+            margin-top: auto; padding-top: 40px; 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;
+            text-align: center;
+        }
+        .sig-item { display: flex; flex-direction: column; align-items: center; }
+        .sig-font { font-family: 'Brush Script MT', cursive; font-size: 26px; color: var(--primary); margin: 0; height: 35px; }
+        .sig-line { border-top: 1.5px solid #333; width: 100%; margin-top: 5px; padding-top: 5px; font-weight: bold; font-size: 12px; color: #333; }
+        .designation { font-size: 10px; color: #7f8c8d; text-transform: uppercase; margin-top: 2px; }
+
+        .footer-info { border-top: 2px solid var(--primary); margin-top: 20px; padding-top: 15px; display: flex; justify-content: space-between; font-size: 12px; }
+        .f-info-left p { margin: 2px 0; }
     </style>
 </head>
 <body>
 
 <div id="loader">
     <div class="spinner"></div>
-    <div id="loader-text">Generating Invoice PDF...</div>
+    <div id="loader-text">Generating Invoice...</div>
 </div>
 
 <div class="form-box">
-    <h3 style="margin-top:0">Invoice Details</h3>
+    <h3 style="margin-top:0">1. Invoice & Client Details</h3>
     <div class="grid">
         <div><label>Invoice No</label><input type="text" id="inNo" placeholder="AI-001" oninput="sync()"></div>
         <div><label>Date</label><input type="date" id="inDate" oninput="sync()"></div>
-        <div><label>Customer Name</label><input type="text" id="inName" placeholder="Akash" oninput="sync()"></div>
-        <div><label>Phone</label><input type="text" id="inPhone" placeholder="98765XXXXX" oninput="sync()"></div>
+        <div><label>Customer Name</label><input type="text" id="inName" placeholder="Name" oninput="sync()"></div>
+        <div><label>Mobile</label><input type="text" id="inPhone" placeholder="98765XXXXX" oninput="sync()"></div>
     </div>
-    <div style="margin-bottom:15px"><label>Address</label><input type="text" id="inAddr" placeholder="Patiala, Punjab" oninput="sync()"></div>
+    <div style="margin-bottom:15px"><label>Address</label><input type="text" id="inAddr" placeholder="Address" oninput="sync()"></div>
 
-    <h3 style="border-top:1px solid #eee; padding-top:10px">Add Product</h3>
+    <h3 style="border-top:1px solid #eee; padding-top:10px">2. Add Products</h3>
     <div class="grid">
         <div><label>Product Name</label><input type="text" id="pName" placeholder="Item Name"></div>
         <div><label>Qty</label><input type="number" id="pQty" placeholder="1"></div>
         <div><label>Price</label><input type="number" id="pPrice" placeholder="500"></div>
         <div><label>Discount</label><input type="number" id="pDisc" placeholder="0"></div>
     </div>
-    <button class="btn btn-add" id="addBtn" onclick="addProduct()">+ Add Product</button>
+    <button class="btn btn-add" onclick="addProduct()">+ Add Product</button>
 </div>
 
 <div class="preview-wrap">
@@ -92,7 +103,7 @@
             </div>
         </div>
 
-        <div style="margin-bottom:25px">
+        <div style="margin-bottom:20px">
             <h4 style="margin-bottom:5px; border-bottom:1px solid #eee; display:inline-block">INVOICE TO:</h4>
             <p><strong><span id="outName" style="font-size:18px">Customer Name</span></strong></p>
             <p>Contact: <span id="outPhone">---</span></p>
@@ -103,7 +114,7 @@
             <thead>
                 <tr>
                     <th>S.N</th>
-                    <th>Product Description</th>
+                    <th>Description</th>
                     <th>Qty</th>
                     <th>Price</th>
                     <th>Disc</th>
@@ -115,28 +126,45 @@
 
         <div class="total-box">Grand Total: ₹<span id="grandTotal">0.00</span></div>
 
-        <div class="footer">
-            <div class="f-left">
+        <div class="signatures-container">
+            <div class="sig-item">
+                <p class="sig-font">Akash</p>
+                <div class="sig-line">Akash</div>
+                <div class="designation">Chief Executive Officer (CEO)</div>
+            </div>
+            <div class="sig-item">
+                <p class="sig-font">Anju</p>
+                <div class="sig-line">Anju</div>
+                <div class="designation">Managing Director (MD)</div>
+            </div>
+            <div class="sig-item">
+                <p class="sig-font">Naman Jain</p>
+                <div class="sig-line">Naman Jain</div>
+                <div class="designation">Business Owner</div>
+            </div>
+        </div>
+
+        <div class="footer-info">
+            <div class="f-info-left">
                 <p><strong>Email:</strong> arhaminsightshelp@gmail.com</p>
-                <p><strong>Contact:</strong> 8769531125, 8968146117</p>
                 <p><strong>Ref No:</strong> 3535246</p>
                 <p><strong>MSME No:</strong> UDYAM-RJ-26-0080974</p>
             </div>
-            <div class="f-right">
-                <p class="sig">Naman Jain</p>
-                <p style="margin:0; font-weight:bold; border-top:1px solid #333; padding-top:5px">Authorized Signature</p>
+            <div style="text-align:right">
+                <p><strong>Contact:</strong> 8769531125, 8968146117</p>
+                <p>Generated via Arham System</p>
             </div>
         </div>
     </div>
 </div>
 
-<div style="max-width:800px; margin:20px auto; display:flex; gap:10px">
-    <button class="btn btn-pdf" id="dlBtn" onclick="generatePDF('download')">Download PDF</button>
-    <button class="btn btn-share" id="shBtn" onclick="generatePDF('share')">Share PDF</button>
+<div style="max-width:850px; margin:20px auto; display:flex; gap:10px">
+    <button class="btn btn-pdf" onclick="processInvoice('download')">Download PDF</button>
+    <button class="btn btn-share" onclick="processInvoice('share')">Share via WhatsApp</button>
 </div>
 
 <script>
-    let allItems = [];
+    let itemsArray = [];
 
     function sync() {
         document.getElementById('outNo').innerText = document.getElementById('inNo').value || '---';
@@ -152,20 +180,17 @@
         const price = parseFloat(document.getElementById('pPrice').value) || 0;
         const disc = parseFloat(document.getElementById('pDisc').value) || 0;
 
-        if(!name || price <= 0) {
-            alert("Bhai details sahi se bharo!");
-            return;
-        }
+        if(!name || price <= 0) { alert("Details sahi se bharo!"); return; }
 
         const rowTotal = (qty * price) - disc;
-        allItems.push({ name, qty, price, disc, rowTotal });
+        itemsArray.push({ name, qty, price, disc, rowTotal });
         
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
-        let finalGTotal = 0;
+        let grand = 0;
         
-        allItems.forEach((item, index) => {
-            finalGTotal += item.rowTotal;
+        itemsArray.forEach((item, index) => {
+            grand += item.rowTotal;
             tbody.innerHTML += `<tr>
                 <td>${index + 1}</td>
                 <td>${item.name}</td>
@@ -176,49 +201,48 @@
             </tr>`;
         });
 
-        document.getElementById('grandTotal').innerText = finalGTotal.toLocaleString('en-IN', {minimumFractionDigits:2});
+        document.getElementById('grandTotal').innerText = grand.toLocaleString('en-IN', {minimumFractionDigits:2});
         
-        // Clear inputs for next product
+        // Clear inputs
         document.getElementById('pName').value = '';
         document.getElementById('pPrice').value = '';
         document.getElementById('pDisc').value = '';
     }
 
-    async function generatePDF(action) {
+    async function processInvoice(type) {
         const loader = document.getElementById('loader');
-        const loaderText = document.getElementById('loader-text');
         const element = document.getElementById('invoice-card');
-        
         loader.style.display = 'flex';
-        loaderText.innerText = "Preparing Invoice...";
 
         const opt = {
             margin: 0,
-            filename: 'Arham_Invoice.pdf',
+            filename: `Arham_Invoice_${Date.now()}.pdf`,
             image: { type: 'jpeg', quality: 1 },
-            html2canvas: { scale: 3, useCORS: true, letterRendering: true, scrollY: 0 },
+            html2canvas: { scale: 3, useCORS: true, letterRendering: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         try {
-            if(action === 'download') {
+            if(type === 'download') {
                 await html2pdf().set(opt).from(element).save();
-                loaderText.innerText = "✅ Download Started!";
             } else {
                 const pdfBlob = await html2pdf().set(opt).from(element).outputBlob();
-                const file = new File([pdfBlob], "Arham_Invoice.pdf", { type: "application/pdf" });
+                const file = new File([pdfBlob], "Invoice.pdf", { type: "application/pdf" });
                 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'Invoice', text: 'Arham Insights Invoice' });
-                    loaderText.innerText = "✅ Ready to Share!";
+                if (navigator.share) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Arham Insights Invoice',
+                        text: 'Customer Invoice'
+                    });
                 } else {
-                    alert("Sharing not supported. Please Download.");
+                    alert("Sharing block ho raha hai. Pehle Download karein fir WhatsApp karein.");
                 }
             }
-        } catch (err) {
-            alert("Error generating PDF. Please try again.");
+        } catch (e) {
+            console.error(e);
         } finally {
-            setTimeout(() => { loader.style.display = 'none'; }, 2000);
+            setTimeout(() => { loader.style.display = 'none'; }, 1500);
         }
     }
 </script>
