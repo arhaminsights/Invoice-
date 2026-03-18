@@ -3,264 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arham Insights | Premium Invoice Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <title>Arham Insights - Professional Photo Invoice</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.1/html-to-image.min.js"></script>
-    
     <style>
-        :root { --brand: #0f172a; --accent: #94a3b8; --gold: #b5935b; --success: #059669; }
-        body { font-family: 'Inter', sans-serif; background: #cbd5e1; margin: 0; padding: 20px; color: #1e293b; }
+        :root { --primary: #1a2a3a; --gold: #c5a059; --light-bg: #f8f9fa; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #e9ecef; margin: 0; padding: 10px; color: #333; }
         
-        /* Admin Dashboard */
-        .admin-panel { background: #ffffff; max-width: 900px; margin: 0 auto 30px; padding: 30px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-        .panel-title { font-size: 22px; font-weight: 800; color: var(--brand); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        input { width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
-        input:focus { border-color: var(--brand); outline: none; box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.1); }
+        /* Admin Controls */
+        .admin-card { background: white; max-width: 850px; margin: 10px auto; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; border: 1.5px solid #dde; border-radius: 6px; box-sizing: border-box; transition: 0.3s; font-size: 14px; }
+        input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 8px rgba(197,160,89,0.2); }
         
-        .action-btns { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 16px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 15px; }
-        .btn-add { background: var(--brand); color: white; }
-        .btn-add:hover { background: #1e293b; transform: translateY(-2px); }
-        .btn-photo { background: var(--success); color: white; font-size: 17px; }
-        .btn-photo:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.4); }
+        .btn { padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-add { background: var(--primary); color: white; width: 100%; margin-bottom: 10px; }
+        .btn-download { background: #27ae60; color: white; width: 100%; font-size: 18px; margin-top: 20px; box-shadow: 0 4px 12px rgba(39,174,96,0.3); }
 
-        /* THE INVOICE SHEET (A4 MASTERPIECE) */
-        .invoice-wrapper { width: 100%; overflow-x: auto; padding-bottom: 50px; }
+        /* THE INVOICE SHEET (A4 Style) */
+        .preview-scroll { width: 100%; overflow-x: auto; padding: 20px 0; }
         #invoice-sheet { 
-            width: 842px; min-height: 1191px; background: white; margin: 0 auto; 
-            padding: 60px; box-sizing: border-box; display: flex; flex-direction: column;
-            position: relative; color: #334155;
+            width: 800px; min-height: 1130px; background: white; margin: 0 auto; 
+            padding: 50px; box-sizing: border-box; display: flex; flex-direction: column;
+            position: relative; border: 1px solid #ddd;
         }
 
-        /* Premium Decorations */
-        .corner-design { position: absolute; top: 0; right: 0; width: 150px; height: 150px; background: linear-gradient(135deg, transparent 50%, #f8fafc 50%); }
+        .top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 10px; background: var(--primary); }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; margin-bottom: 40px; }
+        .brand-box h1 { margin: 0; font-size: 32px; color: var(--primary); letter-spacing: 1px; font-weight: 800; }
+        .brand-box p { margin: 0; color: var(--gold); font-weight: 700; letter-spacing: 5px; font-size: 13px; }
         
-        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 60px; }
-        .logo-area h1 { margin: 0; font-size: 38px; font-weight: 800; color: var(--brand); letter-spacing: -1px; }
-        .logo-area p { margin: 0; font-size: 14px; font-weight: 600; color: var(--gold); letter-spacing: 6px; text-transform: uppercase; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px; }
+        .info-label { font-size: 11px; text-transform: uppercase; color: #888; font-weight: 800; margin-bottom: 5px; }
+        .info-value { font-size: 15px; font-weight: 600; margin: 0; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: var(--primary); color: white; padding: 15px 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { border-bottom: 1px solid #eee; padding: 15px 12px; font-size: 14px; color: #444; }
+        tr:last-child td { border-bottom: 2px solid var(--primary); }
+
+        .summary-wrapper { margin-top: 30px; display: flex; justify-content: flex-end; }
+        .total-card { background: var(--light-bg); padding: 20px 30px; border-radius: 8px; border-right: 5px solid var(--gold); text-align: right; }
+        .total-card h2 { margin: 5px 0 0 0; font-size: 28px; color: var(--primary); }
+
+        /* Compact Signatures Bottom-Right */
+        .footer-main { margin-top: auto; padding-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .thank-you h3 { margin: 0; font-family: 'Georgia', serif; font-size: 26px; color: var(--primary); font-style: italic; }
         
-        .inv-meta { text-align: right; }
-        .meta-box { background: #f1f5f9; padding: 15px 25px; border-radius: 12px; display: inline-block; }
-        .meta-label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; display: block; }
-        .meta-value { font-size: 16px; font-weight: 700; color: var(--brand); }
+        .sig-group { display: flex; gap: 30px; text-align: center; }
+        .sig-font { font-family: 'Brush Script MT', cursive; font-size: 20px; color: #222; margin: 0; line-height: 1; }
+        .sig-line { border-top: 1px solid #333; margin-top: 2px; padding-top: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+        .sig-role { font-size: 8px; color: #999; }
 
-        .client-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 50px; margin-bottom: 40px; }
-        .section-h { font-size: 12px; font-weight: 800; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
-        .client-name { font-size: 22px; font-weight: 700; color: var(--brand); margin: 0; }
-        
-        /* Elegant Table */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin: 20px 0; }
-        th { padding: 15px; text-align: left; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; }
-        td { padding: 18px 15px; background: #ffffff; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .row-total { font-weight: 700; color: var(--brand); text-align: right; }
-
-        .total-area { margin-top: 30px; display: flex; justify-content: flex-end; }
-        .total-box { width: 300px; background: var(--brand); color: white; padding: 25px; border-radius: 12px; text-align: right; position: relative; overflow: hidden; }
-        .total-box::after { content: ''; position: absolute; top: -20px; left: -20px; width: 60px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 50%; }
-        .total-label { font-size: 12px; font-weight: 400; opacity: 0.8; }
-        .total-val { font-size: 32px; font-weight: 800; margin: 5px 0 0 0; }
-
-        /* Stylish Signatures */
-        .footer-sig { margin-top: auto; padding-top: 60px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .thank-you h2 { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--brand); margin: 0; }
-        .thank-you p { font-weight: 600; color: var(--gold); margin: 5px 0; font-size: 18px; }
-
-        .sig-container { display: flex; gap: 40px; }
-        .sig-card { text-align: center; }
-        .sig-img { font-family: 'Playfair Display', serif; font-style: italic; font-size: 22px; color: #000; margin: 0; height: 30px; }
-        .sig-line { width: 120px; border-top: 1.5px solid var(--brand); margin: 5px auto; }
-        .sig-name { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--brand); }
-        .sig-post { font-size: 9px; color: #94a3b8; }
-
-        .company-legal { border-top: 1px solid #f1f5f9; margin-top: 40px; padding-top: 20px; font-size: 11px; color: #94a3b8; display: flex; justify-content: space-between; font-weight: 500; }
+        .bottom-details { border-top: 1px solid #eee; margin-top: 30px; padding-top: 15px; font-size: 11px; color: #777; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
-<div class="admin-panel">
-    <div class="panel-title">💎 Arham Insights Admin Control</div>
-    <div class="input-group">
-        <input type="text" id="inNo" placeholder="Invoice No (e.g. AI-99)" oninput="sync()">
+<div class="admin-card">
+    <h2 style="margin-top:0; color:var(--primary); font-size:20px;">Arham Insights Admin Portal</h2>
+    <div class="grid-4">
+        <input type="text" id="inNo" placeholder="Invoice No" oninput="sync()">
         <input type="date" id="inDate" oninput="sync()">
         <input type="text" id="inName" placeholder="Client Name" oninput="sync()">
-        <input type="text" id="inPhone" placeholder="Client Mobile" oninput="sync()">
+        <input type="text" id="inPhone" placeholder="Phone Number" oninput="sync()">
     </div>
-    <input type="text" id="inAddr" placeholder="Full Billing Address" oninput="sync()" style="margin-bottom:20px;">
+    <input type="text" id="inAddr" placeholder="Full Address" oninput="sync()" style="width:100%; margin-bottom:15px;">
     
-    <div class="input-group" style="background:#f8fafc; padding:15px; border-radius:10px;">
-        <input type="text" id="pName" placeholder="Product/Service Name">
-        <input type="number" id="pQty" placeholder="Quantity">
-        <input type="number" id="pPrice" placeholder="Unit Price">
+    <div class="grid-4">
+        <input type="text" id="pName" placeholder="Product Name">
+        <input type="number" id="pQty" placeholder="Qty">
+        <input type="number" id="pPrice" placeholder="Price">
         <input type="number" id="pDisc" placeholder="Discount (₹)">
     </div>
-    
-    <div class="action-btns">
-        <button class="btn btn-add" onclick="addRow()">+ Add to Invoice</button>
-        <button class="btn btn-photo" onclick="downloadInvoice()">📸 Generate & Download HD Photo</button>
-    </div>
+    <button class="btn btn-add" onclick="addItem()">+ Add Item To List</button>
+    <button class="btn btn-download" onclick="captureImage()">📸 Download Invoice Photo</button>
 </div>
 
-<div class="invoice-wrapper">
+<div class="preview-scroll">
     <div id="invoice-sheet">
-        <div class="corner-design"></div>
-        
-        <div class="header-top">
-            <div class="logo-area">
+        <div class="top-bar"></div>
+        <div class="header">
+            <div class="brand-box">
                 <h1>ARHAM INSIGHTS</h1>
-                <p>Corporate Solutions</p>
+                <p>OFFICIAL INVOICE</p>
             </div>
-            <div class="inv-meta">
-                <div class="meta-box">
-                    <span class="meta-label">Invoice Number</span>
-                    <span class="meta-value" id="outNo">AI-000</span>
-                </div>
-                <div style="margin-top:10px;">
-                    <span class="meta-label">Date of Issue</span>
-                    <span class="meta-value" id="outDate">-- / -- / ----</span>
-                </div>
+            <div style="text-align:right">
+                <div class="info-label">Invoice Details</div>
+                <p class="info-value">#<span id="outNo">---</span></p>
+                <p class="info-value" id="outDate">---</p>
             </div>
         </div>
 
-        <div class="client-section">
+        <div class="info-grid">
             <div>
-                <div class="section-h">Client Information</div>
-                <p class="client-name" id="outName">Client Name</p>
-                <p style="margin:5px 0; font-size:15px;">📞 +91 <span id="outPhone">0000000000</span></p>
-                <p style="margin:5px 0; color:#64748b; font-size:14px; max-width:300px;" id="outAddr">Client address will appear here...</p>
+                <div class="info-label">Bill To:</div>
+                <p class="info-value" id="outName" style="color:var(--primary); font-size:18px;">Customer Name</p>
+                <p style="margin:2px 0; font-size:14px;">+91 <span id="outPhone">0000000000</span></p>
+                <p id="outAddr" style="font-size:13px; color:#666;">Complete Address...</p>
             </div>
             <div style="text-align:right">
-                <div class="section-h">Payment Method</div>
-                <p style="font-weight:700; color:var(--success);">ONLINE / UPI</p>
-                <p style="font-size:12px; color:#64748b;">Transaction Successful</p>
+                <div class="info-label">Payment Status</div>
+                <p class="info-value" style="color:#27ae60">PAID</p>
             </div>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th width="40">#</th>
+                    <th width="40">S.N</th>
                     <th>Description</th>
                     <th>Qty</th>
-                    <th>Unit Price</th>
+                    <th>Price</th>
                     <th>Disc.</th>
                     <th style="text-align:right">Total</th>
                 </tr>
             </thead>
-            <tbody id="invoiceItems">
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
 
-        <div class="total-area">
-            <div class="total-box">
-                <span class="total-label">Amount Payable (INR)</span>
-                <h2 class="total-val" id="gTotal">₹0.00</h2>
+        <div class="summary-wrapper">
+            <div class="total-card">
+                <span style="font-size:12px; font-weight:700; color:#777">TOTAL AMOUNT</span>
+                <h2 id="gTotal">₹0.00</h2>
             </div>
         </div>
 
-        <div class="footer-sig">
+        <div class="footer-main">
             <div class="thank-you">
-                <h2>Thank You!</h2>
-                <p>Khamma Ghani 🙏</p>
+                <h3>Thank You!</h3>
+                <p style="color:var(--gold); font-weight:700; font-size:18px; margin:5px 0">Khamma Ghani 🙏</p>
             </div>
-            <div class="sig-container">
-                <div class="sig-card">
-                    <p class="sig-img">Akash</p>
-                    <div class="sig-line"></div>
-                    <span class="sig-name">Akash</span><br><span class="sig-post">CEO</span>
+            <div class="sig-group">
+                <div class="sig-item">
+                    <p class="sig-font">Akash</p>
+                    <div class="sig-line">Akash</div>
+                    <div class="sig-role">CEO</div>
                 </div>
-                <div class="sig-card">
-                    <p class="sig-img">Anju</p>
-                    <div class="sig-line"></div>
-                    <span class="sig-name">Anju</span><br><span class="sig-post">MD</span>
+                <div class="sig-item">
+                    <p class="sig-font">Anju</p>
+                    <div class="sig-line">Anju</div>
+                    <div class="sig-role">MD</div>
                 </div>
-                <div class="sig-card">
-                    <p class="sig-img">Naman</p>
-                    <div class="sig-line"></div>
-                    <span class="sig-name">Naman Jain</span><br><span class="sig-post">Owner</span>
+                <div class="sig-item">
+                    <p class="sig-font">Naman</p>
+                    <div class="sig-line">Naman Jain</div>
+                    <div class="sig-role">Owner</div>
                 </div>
             </div>
         </div>
 
-        <div class="company-legal">
+        <div class="bottom-details">
             <span>Email: arhaminsightshelp@gmail.com</span>
-            <span>Reg: UDYAM-RJ-26-0080974</span>
-            <span>Support: +91 8769531125</span>
+            <span>Contact: 8769531125</span>
+            <span>MSME: UDYAM-RJ-26-0080974</span>
         </div>
     </div>
 </div>
 
 <script>
-    let rows = [];
-
+    let items = [];
     function sync() {
-        document.getElementById('outNo').innerText = document.getElementById('inNo').value || 'AI-000';
-        document.getElementById('outDate').innerText = document.getElementById('inDate').value || '--/--/----';
-        document.getElementById('outName').innerText = document.getElementById('inName').value || 'Client Name';
-        document.getElementById('outPhone').innerText = document.getElementById('inPhone').value || '0000000000';
-        document.getElementById('outAddr').innerText = document.getElementById('inAddr').value || 'Client address will appear here...';
+        document.getElementById('outNo').innerText = document.getElementById('inNo').value || '---';
+        document.getElementById('outDate').innerText = document.getElementById('inDate').value || '---';
+        document.getElementById('outName').innerText = document.getElementById('inName').value || 'Customer Name';
+        document.getElementById('outPhone').innerText = document.getElementById('outPhone').value || '0000000000';
+        document.getElementById('outAddr').innerText = document.getElementById('inAddr').value || 'Complete Address...';
     }
 
-    function addRow() {
+    function addItem() {
         const name = document.getElementById('pName').value;
         const qty = parseFloat(document.getElementById('pQty').value) || 1;
         const price = parseFloat(document.getElementById('pPrice').value) || 0;
         const disc = parseFloat(document.getElementById('pDisc').value) || 0;
-
-        if(!name || price <= 0) return alert("Pehle product ki sahi detail daalo!");
-
+        if(!name) return alert("Detail bharo bhai!");
         const total = (qty * price) - disc;
-        rows.push({name, qty, price, disc, total});
-        
-        updateTable();
-        
-        // Clear fields
+        items.push({name, qty, price, disc, total});
+        render();
         document.getElementById('pName').value = '';
         document.getElementById('pQty').value = '';
         document.getElementById('pPrice').value = '';
         document.getElementById('pDisc').value = '';
     }
 
-    function updateTable() {
-        const body = document.getElementById('invoiceItems');
-        body.innerHTML = '';
-        let grand = 0;
-        
-        rows.forEach((r, i) => {
-            grand += r.total;
-            body.innerHTML += `
-                <tr>
-                    <td>${i+1}</td>
-                    <td><span style="font-weight:600; color:#0f172a">${r.name}</span></td>
-                    <td>${r.qty}</td>
-                    <td>₹${r.price.toLocaleString()}</td>
-                    <td style="color:#ef4444">-₹${r.disc}</td>
-                    <td class="row-total">₹${r.total.toLocaleString()}</td>
-                </tr>
-            `;
+    function render() {
+        const tb = document.getElementById('tableBody');
+        tb.innerHTML = ''; let gt = 0;
+        items.forEach((it, i) => {
+            gt += it.total;
+            tb.innerHTML += `<tr><td>${i+1}</td><td><strong>${it.name}</strong></td><td>${it.qty}</td><td>₹${it.price}</td><td>-₹${it.disc}</td><td style="text-align:right; font-weight:bold">₹${it.total.toFixed(2)}</td></tr>`;
         });
-        
-        document.getElementById('gTotal').innerText = "₹" + grand.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('gTotal').innerText = "₹" + gt.toLocaleString('en-IN');
     }
 
-    function downloadInvoice() {
+    function captureImage() {
         const node = document.getElementById('invoice-sheet');
-        const invName = document.getElementById('inNo').value || 'New';
-        
-        htmlToImage.toPng(node, { 
-            quality: 1, 
-            pixelRatio: 3, // Super HD Quality
-            backgroundColor: '#ffffff'
-        })
+        htmlToImage.toPng(node, { quality: 1, backgroundColor: '#ffffff', pixelRatio: 2 })
         .then(function (dataUrl) {
             const link = document.createElement('a');
-            link.download = `Invoice_${invName}.png`;
+            link.download = 'Arham_Invoice_' + (document.getElementById('inNo').value || "New") + '.png';
             link.href = dataUrl;
             link.click();
-        })
-        .catch(function (error) {
-            alert('Error generating image. Try again!');
-        });
+        }).catch(err => alert("Error: " + err));
     }
 </script>
 </body>
